@@ -1,26 +1,61 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { PrismaService } from '../../database/prisma.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
 
 @Injectable()
 export class WarehouseService {
-  create(createWarehouseDto: CreateWarehouseDto) {
-    return 'This action adds a new warehouse';
+
+  constructor(private prismaService: PrismaService) {}
+
+  async create(createWarehouseDto: CreateWarehouseDto) {
+    try {
+      return await this.prismaService.warehouse.create({
+        data: {
+          name: createWarehouseDto.name,
+          position: {
+            create: {
+              latitude: +createWarehouseDto.latitude,
+              longitude: +createWarehouseDto.longitude
+            }
+          }
+        }
+      });
+    } catch (error) {
+      throw new HttpException(
+        `Internal error when creating warehouse`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  findAll() {
-    return `This action returns all warehouse`;
+  async findAll() {
+    try {
+      return await  this.prismaService.warehouse.findMany({
+        include: {
+          position: true,
+          admin: true,
+          drones: true,
+          orders: true,
+        }
+      });
+    } catch (error) {
+      throw new HttpException(
+        `Internal error when creating warehouse`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} warehouse`;
-  }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} warehouse`;
+  // }
 
-  update(id: number, updateWarehouseDto: UpdateWarehouseDto) {
-    return `This action updates a #${id} warehouse`;
-  }
+  // update(id: number, updateWarehouseDto: UpdateWarehouseDto) {
+  //   return `This action updates a #${id} warehouse`;
+  // }
 
-  remove(id: number) {
-    return `This action removes a #${id} warehouse`;
-  }
+  // remove(id: number) {
+  //   return `This action removes a #${id} warehouse`;
+  // }
 }

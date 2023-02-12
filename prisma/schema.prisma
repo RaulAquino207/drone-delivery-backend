@@ -12,6 +12,7 @@ datasource db {
 
 model Warehouse {
   id String @id @default(auto()) @map("_id") @db.ObjectId
+  name String
   drones Drone[]
   orders Order[]
   admin Admin?
@@ -21,6 +22,9 @@ model Warehouse {
 
 model Drone {
   id String @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  status String
+  speed Int
   orders Order[]
   warehouse Warehouse @relation(fields: [warehouseId], references: [id])
   warehouseId String @db.ObjectId
