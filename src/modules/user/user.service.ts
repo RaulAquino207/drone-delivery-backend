@@ -39,9 +39,36 @@ export class UserService {
     });
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} user`;
-  // }
+  async findByUsernameOrEmail(login: string) {
+    return await this.prismaService.user.findFirst({
+      include: {
+        orders: true,
+        position: true,
+      },
+      where: {
+        OR: [
+          {
+            username: login
+          },
+          {
+            email: login
+          }
+        ]
+      }
+    });
+  }
+
+  async findOne(id: string) {
+    return this.prismaService.user.findFirst({
+      include: {
+        orders: true,
+        position: true
+      },
+      where: {
+        id
+      }
+    });
+  }
 
   // update(id: number, updateUserDto: UpdateUserDto) {
   //   return `This action updates a #${id} user`;

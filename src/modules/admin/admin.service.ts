@@ -39,9 +39,27 @@ export class AdminService {
     });
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} admin`;
-  // }
+  async findByEmail(email: string) {
+    return await this.prismaService.admin.findFirst({
+      include: {
+        warehouse: true,
+      },
+      where: {
+        email: email
+      }
+    });
+  }
+
+  async findOne(id: string) {
+    return this.prismaService.admin.findFirst({
+      include: {
+        warehouse: true
+      },
+      where: {
+        id
+      }
+    });
+  }
 
   // update(id: number, updateAdminDto: UpdateAdminDto) {
   //   return `This action updates a #${id} admin`;

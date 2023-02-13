@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -19,10 +19,15 @@ export class AdminController {
     return this.adminService.findAll();
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.adminService.findOne(+id);
-  // }
+  @Get('/login')
+  findByUsernameOrEmail(@Query('email') email: string) {
+    return this.adminService.findByEmail(email);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.adminService.findOne(id);
+  }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
