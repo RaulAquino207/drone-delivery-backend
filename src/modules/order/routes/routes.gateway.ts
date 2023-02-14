@@ -23,19 +23,27 @@ export class RoutesGateway {
       section_id: payload.sectionId
     });
 
+    this.server.emit(payload.sectionId, order);
+
     let jump = 0;
     let coordinates = setInterval(async () => {      
       if (order.route[jump] == undefined) {
         this.droneService.returnToIdle(order.drone.id);
         this.orderService.finalizeOrder(order.id);
-        clearInterval(coordinates)
+
+        this.server.emit(payload.sectionId, {
+          message: true,
+          sectionId: payload.sectionId
+        });
+
+        clearInterval(coordinates);
       } else {
         const drone = await this.droneService.updateCoordinates(order.drone.id, order.route[jump])
 
         this.server.emit(payload.sectionId, {
           message: [drone.position.latitude, drone.position.longitude],
           sectionId: payload.sectionId
-        })
+        });
       }
       jump += order.drone.speed;
     }, 1000);

@@ -81,12 +81,14 @@ export class OrderService {
       (warehouseWithShorterDistance.position.longitude - coordinates[1]) /
       numPoints;
 
-    const route = [];
+    let route = [];
     for (let i = 0; i <= numPoints; i++) {
       const lng = coordinates[1] + i * lngStep;
       const lat = line.equation(lng);
       route.push([lat, lng]);
     }
+
+    route = route.reverse();
 
     // const response = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${coordinates[0]}, ${coordinates[1]}&destinations=${warehousesCoordinates[0].position.latitude}, ${warehousesCoordinates[0].position.longitude}&key=${process.env.GOOGLE_API_KEY}`);
     // console.log(response.data.destination_addresses)
