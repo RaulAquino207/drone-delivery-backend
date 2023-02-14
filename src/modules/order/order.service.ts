@@ -121,14 +121,25 @@ export class OrderService {
       }
     });
 
-    return await this.prismaService.order.create({
+    const order = await this.prismaService.order.create({
       data: {
         status: OrderStatusEnum.STARTED,
         userId: createOrderDto.user_id,
         warehouseId: warehouseWithShorterDistanceAndRoute.warehouseWithShorterDistance.id,
-        droneId: drone.id
+        droneId: drone.id,
+      },
+      include: {
+        warehouse: {
+          include: {
+            position: true
+          }
+        }
       }
-    })
+    });
+
+    return Object.assign(order, {
+      route: warehouseWithShorterDistanceAndRoute.route
+    });
   }
 
   async findAll() {

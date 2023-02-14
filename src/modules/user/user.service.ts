@@ -61,7 +61,12 @@ export class UserService {
   async findOne(id: string) {
     return this.prismaService.user.findFirst({
       include: {
-        orders: true,
+        orders: {
+          include: {
+            drone: true,
+            warehouse: true
+          }
+        },
         position: true
       },
       where: {

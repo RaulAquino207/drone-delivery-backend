@@ -46,6 +46,17 @@ export class DroneService {
     });
   }
 
+  async returnToIdle(id: string){
+    return await this.prismaService.drone.update({
+      where: {
+        id
+      },
+      data: {
+        status: DroneStatusEnum.IDLE,
+      }
+    })
+  }
+
   // findOne(id: number) {
   //   return `This action returns a #${id} drone`;
   // }

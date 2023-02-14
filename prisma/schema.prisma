@@ -28,6 +28,8 @@ model Drone {
   orders Order[]
   warehouse Warehouse @relation(fields: [warehouseId], references: [id])
   warehouseId String @db.ObjectId
+  position Position @relation(fields: [positionId], references: [id])
+  positionId String @db.ObjectId @unique
 }
 
 model User {
@@ -64,4 +66,5 @@ model Position {
   longitude Float
   user User?
   warehouse Warehouse?
+  drone Drone?
 }

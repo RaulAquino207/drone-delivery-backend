@@ -7,10 +7,11 @@ import { WarehouseModule } from './modules/warehouse/warehouse.module';
 import { UserModule } from './modules/user/user.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { OrderModule } from './modules/order/order.module';
+import { RoutesGateway } from './modules/routes/routes.gateway';
 
 @Module({
   imports: [ConfigModule.forRoot(), DroneModule, WarehouseModule, UserModule, AdminModule, OrderModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, RoutesGateway],
 })
 export class AppModule {}

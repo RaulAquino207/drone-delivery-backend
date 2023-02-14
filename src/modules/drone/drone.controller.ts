@@ -32,10 +32,10 @@ export class DroneController {
   //   return this.droneService.findOne(+id);
   // }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateDroneDto: UpdateDroneDto) {
-  //   return this.droneService.update(+id, updateDroneDto);
-  // }
+  @Patch(':id')
+  update(@Param('id') id: string) {
+    return this.droneService.returnToIdle(id);
+  }
 
   // @Delete(':id')
   // remove(@Param('id') id: string) {
