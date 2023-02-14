@@ -15,8 +15,18 @@ export class DroneService {
       const warehouse = await this.prismaService.warehouse.findUniqueOrThrow({
         where: {
           id: createDroneDto.warehouse_id
-        }
+        },
+        include: {
+          position: true
+        },
       });
+
+      const position = await this.prismaService.position.create({
+        data: {
+          latitude: warehouse.position.latitude,
+          longitude: warehouse.position.longitude
+        }
+      })
 
       return await this.prismaService.drone.create({
         data: {
@@ -27,7 +37,8 @@ export class DroneService {
           }) + 1}`,
           status: DroneStatusEnum.IDLE,
           speed: createDroneDto.speed,
-          warehouseId: warehouse.id
+          warehouseId: warehouse.id,
+          positionId: position.id
         }
       })
     } catch (error) {
@@ -47,12 +58,51 @@ export class DroneService {
   }
 
   async returnToIdle(id: string){
+
+    const warehouse = await this.prismaService.drone.findFirst({
+      where: {
+        id: id
+      },
+      select: {
+        warehouse: {
+          select: {
+            position: true
+          }
+        }
+      }
+    })
+
     return await this.prismaService.drone.update({
       where: {
         id
       },
       data: {
         status: DroneStatusEnum.IDLE,
+        position: {
+          update: {
+            latitude: warehouse.warehouse.position.latitude,
+            longitude: warehouse.warehouse.position.longitude
+          }
+        }
+      }
+    })
+  }
+
+  async updateCoordinates(id: string, coordinates: number[]) {
+    return await this.prismaService.drone.update({
+      where: {
+        id
+      },
+      data: {
+        position: {
+          update: {
+            latitude: coordinates[0],
+            longitude: coordinates[1]
+          }
+        }
+      },
+      include: {
+        position: true
       }
     })
   }

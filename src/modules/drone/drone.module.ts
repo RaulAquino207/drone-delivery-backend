@@ -5,6 +5,7 @@ import { PrismaService } from '../../database/prisma.service';
 
 @Module({
   controllers: [DroneController],
-  providers: [DroneService, PrismaService]
+  providers: [DroneService, PrismaService],
+  exports: [DroneService]
 })
 export class DroneModule {}

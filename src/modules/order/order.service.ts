@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { getDistance } from 'geolib';
 import { PrismaService } from '../../database/prisma.service';
@@ -6,6 +6,7 @@ import { DroneStatusEnum } from '../drone/enum/drone-status.enum';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderStatusEnum } from './enum/order-status.enum';
+import {v4 as uuidv4} from 'uuid';
 
 @Injectable()
 export class OrderService {
@@ -26,6 +27,7 @@ export class OrderService {
   }
 
   async nearestWarehouseCoordinates(coordinates: number[]) {
+    
     const warehousesCoordinates = await this.prismaService.warehouse.findMany({
       where: {
         drones: {
@@ -44,6 +46,9 @@ export class OrderService {
       },
     });
 
+   if(JSON.stringify(warehousesCoordinates) === "[]") {
+    return null;
+   } else {
     const origin = {
       latitude: coordinates[0],
       longitude: coordinates[1],
@@ -93,6 +98,7 @@ export class OrderService {
       warehouseWithShorterDistance,
       route
     };
+   }
   }
 
   async create(createOrderDto: CreateOrderDto) {
@@ -110,6 +116,10 @@ export class OrderService {
       user.position.longitude,
     ]);
 
+    if(warehouseWithShorterDistanceAndRoute == null) {
+      throw new HttpException(`No drones at the moment :(`, HttpStatus.BAD_REQUEST);
+    }
+
     const drone = warehouseWithShorterDistanceAndRoute.warehouseWithShorterDistance.drones[Math.floor(Math.random() * warehouseWithShorterDistanceAndRoute.warehouseWithShorterDistance.drones.length)];
 
     await this.prismaService.drone.update({
@@ -121,14 +131,22 @@ export class OrderService {
       }
     });
 
+    const sectionId = uuidv4();
+
     const order = await this.prismaService.order.create({
       data: {
-        status: OrderStatusEnum.STARTED,
+        status: OrderStatusEnum.BEINGDELIVERED,
         userId: createOrderDto.user_id,
+        section: String(sectionId),
         warehouseId: warehouseWithShorterDistanceAndRoute.warehouseWithShorterDistance.id,
         droneId: drone.id,
       },
       include: {
+        drone: {
+          include: {
+            position: true
+          }
+        },
         warehouse: {
           include: {
             position: true
@@ -152,6 +170,31 @@ export class OrderService {
     });
   }
 
+  async getActiveSections(id: string){
+    return await this.prismaService.order.findMany({
+      where: {
+        userId: id,
+        status: OrderStatusEnum.BEINGDELIVERED
+      }, 
+      include: {
+        user: true,
+        drone: true,
+        warehouse: true
+      }
+    });
+  }
+
+  async finalizeOrder(id: string){
+    await this.prismaService.order.update({
+      where: {
+        id: id
+      },
+      data: {
+        status: OrderStatusEnum.DELIVERED
+      }
+    })
+  }
+
   // findOne(id: number) {
   //   return `This action returns a #${id} order`;
   // }
@@ -164,3 +207,4 @@ export class OrderService {
   //   return `This action removes a #${id} order`;
   // }
 }
+

@@ -19,6 +19,11 @@ export class OrderController {
     return this.orderService.findAll();
   }
 
+  @Get('/active-sections')
+  getActiveSectionsByUserId(@Param('id') id: string) {
+    return this.orderService.getActiveSections(id);
+  }
+
   // @Get(':id')
   // findOne(@Param('id') id: string) {
   //   return this.orderService.findOne(+id);
